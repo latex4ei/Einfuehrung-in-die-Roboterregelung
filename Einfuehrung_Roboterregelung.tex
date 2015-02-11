@@ -1,0 +1,326 @@
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % 
+% 
+% FS-Vorlage											Stand: 30.01.12
+%
+% Formelsammlungsvorlage von Emanuel Regnath und Martin Zellner	
+% Bietet verschiedene Abkürzungen und Befehle	
+%
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % 
+
+
+% Dokumenteinstellungen
+% ======================================================================
+
+% Dokumentklasse (Schriftgröße 6, DIN A4, Artikel)
+\documentclass[6pt,a4paper]{scrartcl}
+%\documentclass[5pt,a4paper]{scrartcl} %USE IN CASE OF EMERGENCY  geschafft! emergency not needed
+
+% Pakete laden
+\usepackage[utf8]{inputenc}		% Zeichenkodierung: UTF-8 (für Umlaute)   
+\usepackage[german]{babel}		% Deutsche Sprache
+\usepackage{multicol}			% ermöglicht Seitenspalten  
+\usepackage{booktabs}			% bessere Tabellenlinien
+\usepackage{enumitem}			% bessere Listen
+\usepackage{graphicx}			% Zum Bilder einfügen benötigt
+\usepackage{xcolor}
+\usepackage{pbox}				%Intelligent parbox: \pbox{maximum width}{blabalbalb \\ blabal}
+\usepackage{scientific}			% Eigenes Paket
+\usepackage{scrtime}
+\usepackage{parskip} 			%Verhindert das einrücken am Zeilenanfang
+\usepackage{titlesec}
+
+
+% .:: Seitenlayout und Ränder
+% ======================================================================
+\usepackage{geometry}
+\geometry{a4paper,landscape, left=6mm,right=6mm, top=0mm, bottom=3mm,includeheadfoot} 
+
+
+% .:: Kopf- und Fußzeile
+% ======================================================================
+\usepackage{fancyhdr}
+\pagestyle{fancy}
+\fancyhf{}
+
+   \fancyfoot[C]{von Emanuel Regnath und Martin Zellner - Mail: \emph{info@latex4ei.de}}
+   \renewcommand{\headrulewidth}{0.0pt} %obere Linie ausblenden
+   \renewcommand{\footrulewidth}{0.1pt} %obere Linie ausblenden
+
+   \fancyfoot[R]{Stand: \today \ um \thistime \ Uhr \qquad \thepage}
+   \fancyfoot[L]{Homepage: www.latex4ei.de -- Fehler bitte \emph{sofort} melden.}
+	
+% Schriftart SANS für bessere Lesbarkeit bei kleiner Schrift
+\renewcommand{\familydefault}{\sfdefault} 
+% Array- und Tabellenabstände vergrößern
+\renewcommand{\arraystretch}{1.2}
+
+
+% .:: Überschriften anpassen
+% ======================================================================
+
+%\titleformat{ command }[ shape ]{ format }{ label }{ sep }{ before-code }[ after-code ]
+\titleformat{\section}{\Large \bfseries}{\thesection .}{0.5em}{}[\hrule \hrule ]
+\titleformat{\subsection}{\large \bfseries}{\thesubsection .}{0.3em}{}[ ]
+
+%\titlespacing{Überschriftart}{keine Ahnung}{Abstand oberhalb}{Abstand unterhalb}
+\titlespacing{\section}{0em}{1.0em}{0.1em}
+\titlespacing{\subsection}{0em}{0.2em}{-0.4em}
+\titlespacing{\subsubsection}{0em}{0em}{-0.5em}
+
+%\let\vec\oldvec
+
+\DeclareMathOperator{\trans}{trans}
+\DeclareMathOperator{\rotx}{rotX}
+\DeclareMathOperator{\roty}{rotY}
+\DeclareMathOperator{\rotz}{rotZ}
+
+
+
+% Dokumentbeginn
+% ======================================================================
+\begin{document}
+
+
+% Aufteilung in Spalten
+\vspace{-4mm}
+\begin{multicols}{4}
+	\vspace{-20mm}{
+	\parbox{2.3cm}{
+		\includegraphics[height=1.4cm]{./img/Logo.pdf}		
+	}
+	\parbox{4cm}{
+		\emph{\huge{Einf\"uhrung in die\\Roboterregelung}}
+	}}
+\vspace{5mm} % Man muss optimieren wos nur geht ;)
+% ---------------------------------------------------
+% | 		Einführung in die Roboterregelung		|
+% | ehemals: Grundlagen intelligenter Roboter		|
+% ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+%=======================================================================
+
+Dieses Fach wurde bis 2013 unter dem Namen ``Grundlagen intelligenter Roboter'' gelehrt.\par
+\textcolor{red}{	\textbf{HINWEIS:} Die Formelsammlung ist eine einfache Mitschrift, sehr ungeordnet und kann grobe Fehler enthalten. Sie dient lediglich als Überblick zum Fach.
+	Wenn jemand die FS ergänzen/überarbeiten möchte, einfach melden}
+
+
+
+\section{Mathematik}
+$\dot {\ma R} = \ma S(t) \cdot R(t)$ \quad mit $\ma S(t) = \ma S(\vec \omega(t)) = \mat{ 0 & -\omega_z & \omega_y \\ \omega z & 0 & -\omega_x \\ -\omega_y \omega x & 0}$\\
+Ableitung von ${}_0 \dot{\ma R} = \ma {}_0 R_{m-1} \cdot {}_{m-1} \ma R_m$\\ 
+
+\section{Allgemeines}
+\begin{tabular}{ll}
+Räumliche Anordnung & $RAN = x_1,x_2,x_3,\varphi_1,\varphi_2,\varphi_3$\\
+Homogene Transformation & ${}_b \ma T_a = \mat{\ma R & \vec r \\ \vec 0^\top & s} \in \R^{4 \times 4}$\\
+Weltkoordinaten & $\vec w = \mat{ \vec r \\ \vec \Omega}$\\
+Gelenkkordinaten & $\vec q$\\
+\end{tabular}
+
+
+
+Frame-Konzept: jedes Objekt hat sein eigenes KOSY(Frame).\\
+Richtungscosinusmatrix ${}_{A} \ma R_{B}$  bzw. ${}_{A} \ma C_{B} = \mat{ c_{xx'} & c_{xy'} & c_{xz'} \\ c_{yx'} & c_{yy'} & c_{yz'} \\ c_{zx'} & c_{zy'} & c_{zz'} }$\\
+Redundant, da Basisvektoren orthogonal.\\
+Self-Motion: Nur zusätzliche Freiheitsgrade werden bewegt, Effektor behält seine aktuelle RAN\\
+holonom: System, welches sich lokal in alle Richtungen gleichzeitig bewegen kann % dessen $n$ Freiheitsgrade nur durch $m < n$ Zwangsbedingung beschränkt ist.\\
+\\
+\subsection{Transformation}
+Elementare Rotationsmatrizen (sind orthogonal $\ma R^\top = \ma R^{-1}$):\\
+$\mat{ 1 & 0 & 0 \\ 0 & c\theta_x & - s\theta_x \\ 0 & s\theta_x & c\theta_x }$ \ $\mat{ c\theta_y & 0 & s\theta_y \\ 0  & 1 & 0 \\ -s\theta_y & 0 & c\theta_y }$\ 
+$\mat{ c\theta_z & -s\theta_z & 0 \\ s\theta_z & c\theta_z & 0 \\ 0 & 0 & 1 }$\\
+Verkettung von Rotationen nicht kommutativ! $\ma R_{ges} = \ma R_n \cdots \ma R_2 \cdot \ma R_1$\\
+
+
+\textbf{RPY-Winkel:} Roll($\alpha$), Pitch($\beta$), Yaw($\gamma$) um $x,y,z$-Weltachsen\\
+$\ma R = \ma R_z(\gamma) \cdot \ma R_y(\beta) \cdot \ma R_x(\alpha)$\\
+\textbf{Eulersche Winkel} $\Psi,\Theta,\Phi$: Drehung um die aktuellen $z,x',z''$-Achsen.\\
+$\ma R = \ma R_z(\Psi) \cdot \ma R_x(\theta) \cdot \ma R_z(\phi)$\\
+\\
+Homogene Transformation $\tma{B}{T}{A} = \mat{\tma{B}{R}{A} & \vec r' \\ \vec f^\top & w} \in \R^{4 \times 4}$\\
+mit Rotation $\ma R$, Translation $\vec r'$, Verzerrung $\vec f$ und Skalierung $w$\\
+Inverse: $\tma{B}{T}{A}^{-1} = \tma{A}{T}{B} = \mat{\tma{B}{R}{A}^\top & -\tma{B}{R}{A}^\top {}_B \vec r' \\ \vec 0^\top & 1}$\\
+\\
+hom. Translationsmatrix: $\tma{B}{T}{A} = \mat{ \ma E & \vec o' \\ \vec 0^\top & 1}$\\
+Matrixmultiplikation:\\
+Von links nach rechts: Um Achse im aktuellen KOSY (Euler)\\
+Von rechts nach links: Um Achse im ursprünglichen KOSY (RPY)\\
+
+
+\subsection{Weltmodellierung}
+Ein Frame kann Bezugsystem für beliebig viele andere Frames sein aber darf selber nur an ein einziges Bezugsystem gebunden sein.
+
+Effektortransforamtion $\tma{0}{T}{E}$\\
+
+\subsection{Denavit-Hartenberg-Konvetion}
+Regeln, zum Aufstellen der einzelnen Frames:
+\begin{enumerate}
+	\item $z_n$-Achse ist Drehachse des Gelenks $n+1$ umd Winkel $\theta_{n+1}$
+	\item $x_n$ ist die gemeinsame Normale von $z_{n-1}$ zu $z_n$
+	\item Ergänze $y_n$ so, dass ein Rechtssystem entsteht. 
+\end{enumerate}
+Damit ergeben sich pro Gelenk nur 4 Parameter zur Bestimmung der RAN des $n$-ten KOSY im $(n-1)$-ten KOSY\\
+$rot(x_{n-1},\alpha_n), trans(x_{n-1},a_n), trans(z_{n-1},d_n), rot(z_{n-1},\theta_n)$\\
+$\theta_n$ Drehwinkel/Translation um/entlang $z_{n-1}$\\
+$\alpha_n$ Verdrehwinkel von $z_{n-1}$ nach $z_n$ um $x_{n-1}$\\
+$a_n$ Minimaler Abstand (gemeinsame Normale) zw. $z_{n-1},z_n$ entlang $x_n$\\
+$d_n$ Verschiebung der KOSY entlang $z_{n-1}$\\ 
+
+\section{Kinematik}
+\begin{tabular}{lll}
+Vorwärtskinematik & DIR-KIN & $\vec w = \vec f(\vec q)$\\
+Rückwärtskinematik & INV-KIN & $\vec q = \vec g(\vec w)$\\
+\end{tabular}
+
+
+
+Translatorische Geschwindigkeit: $\vec v = \frac{\diff \vec r}{\diff t}$\\
+Rotatorische Geschwindigkeit: 1. $\dot {\vec \Omega} = \frac{\diff }{\diff t} [\Psi, \Theta, \phi]$\\
+2. Drehwinkelgeschwindigkeit $\vec \omega$\\
+
+Weltkoordinaten $\vec w$ und Gelenkkoordinaten $\vec q$\\
+$\tma{0}{T}{E}(\vec q) = \mat{\tma{0}{R}{E}(\vec q) & \vec r(\vec q) \\ \vec 0^\top & 1}$\\
+Weltkoordinaten $\vec w = \mat{ \vec r \\ \vec \Omega} = \vec f(\vec q)$\\
+Analytisch: $\vec {\dot w} = \mat{ \dot {\vec r} \\ \dot {\vec \Omega}} = \ma J_{\vec f}(\vec q) \vec{\dot q}$\\
+Geometrisch: $\vec {\dot v} = \mat{ \dot {\vec r} \\ \dot {\vec \omega}} = \ma J_{\vec g}(\vec q) \vec{\dot q}$\\
+\\
+Bewegung von Gelenken:\\
+${}_0 \omega_m = {}_0 \omega_{m-1} + {}_0 \ma R{m-1} \cdot \omega_{m-1,m}$\\
+${}_0 \dot{\vec r}_m = {}_0 \dot{\vec r}_{m-1} + {}_0 \dot{\vec r}_{m-1,m} + {}_0 \vec \omega_{m-1} \times {}_0 \vec r_{m-1,m}$\\
+
+\begin{tabular}{ll}
+Prismatisches Gelenk & Rotatorisches Gelenk \\
+${}_0 \vec \omega_{m-1,m} = \vec 0$ & ${}_0 \vec \omega_{m-1,m} =\dot \Theta_m \cdot {}_0 \vec z_m$\\
+${}_0 \dot{\vec r}_{m-1,m} = \dot{\ma G}_m \cdot {}_0 \vec z_{m-1}$ & ${}_0 \dot{\vec r}_{m-1,m} = {}_0 \omega_{m-1} \times \vec r_{m-1,m}$\\
+\end{tabular}
+
+\begin{tabular}{lll}
+& Vorwärtslösung & Rückwärtslösung\\ \mrule
+KOSY & $\vec w = \vec f(\vec q)$ & $\vec q = \vec g(\vec w)$\\
+Geschw. & $\vec {\dot w} = \ma J_{\vec f}(\vec q) \vec{\dot q}$ & $\vec{\dot q} = \ma J^{-1}_{\vec f}(\vec q) \vec {\dot w}$\\
+Momente & $\vec \tau = \ma J^\top(\vec q) \cdot \vec F$ & $\vec F = \left(\ma J^\top(\vec q)\right)^{-1} \cdot \vec \tau$
+
+\end{tabular}
+
+
+	\subsection{Gelenkmomente}
+	$\vec \tau = \ma J^\top(\vec q) \cdot \vec F$
+
+
+	\subsection{Bahnplanung (Trajektorienplanung)}
+	Eine Bahn sollte möglichst weich, als mit geringen Ruck durchfahren werden.\\
+	Startpunkt $S$, Zielpunkt $Z$\\
+	Durchpunkt $D$ muss mit definierter Geschwindigkeit exakt durchfahren werden.\\
+	Viapunkt $V$ muss möglichst nahe passiert werden.\\
+	
+	Übergangszeit $\tau \ge \max(\tau_{q1}, \tau_{q2}, \cdots, \tau_{qn})$\\
+	
+	
+\section{Manipulatordynamik}
+	Lagrangefunktion $L = T(\vec q,\dot{\vec q}) - V(\vec q)$\\
+	Euler-Lagrange: $\frac{\diff}{\diff t}  \frac{\partial L}{\partial \dot q_i} - \frac{\partial L}{\partial q_i} = Q_i$\\
+	
+	\subsection{Modell in Gelenkkoordinaten (Normalform)}
+	\boxed{ \ma M(\vec q) \ddot{\vec q} + \vec N(\vec q, \dot{\vec q}) + \vec G(\vec q) + \vec F(\vec q, \dot{\vec q}) = \vec U }\\
+	Trägheitsmatrix $\ma M$, Kreiselkräfte $\vec N$, Gravitationskräfte $\vec G$, Dämpfkräfte $\vec F$, Steuerkräfte $\vec U$\\
+	
+	\subsection{Modell in Weltkoordinaten}
+	\boxed{ \ma M_w(\vec q) \ddot{\vec w} + \vec N_w(\vec q, \dot{\vec w}) + \vec G_w(\vec q) + \vec F_w(\vec q, \dot{\vec w}) = \vec U_{\ir Welt} }
+	
+	
+\section{Aktoren}
+		\subsection{Harmonic Drive Getriebe}
+		Wave Generator(WG), Flexspline(FS), Circular-Spline(CS)\\
+	
+	
+	
+\section{Sensoren}
+Für innere Zustandsgrößen: Gelenkwinkel\\
+Kontaktsensoren im Nahbereich $d \approx \SI{1}{mm}$\\
+Annäherungssensoren im Mittelbereich $d < \SI{25}{cm}$\\
+Abbildungssensoren im Fernbereich $d > \SI{1}{\meter}$\\
+	
+	
+	
+\section{Appoximationstheorie}
+Approximationssatz von Stone-Weierstraß: In einem kompakten Intervall kann jede stetige Funktion beliebig genau durch Polynome angenähert werden (Taylorreihe). Jede periodische stetige Funktion kann beliebig genau durch trigonometrische Funktionen angenähert werden. (Fouriereihe)\\
+Fehler der Approximation $f = \O(x^n)$
+
+\subsection{Interpolation}
+versucht diskrete Punkte durch eine stetige -- und im besten Fall mehrmals differenzierbare -- Funktion zu verbinden. Meist ist das Ziel abprupte Übergänge ``weicher'' und ``glatter'' zu machen.	
+Meist wird mit Polynomen interpoliert, da diese leicht zu differenzieren, zu integrieren und auszurechnen sind.
+Meist wird zur Bestimmung das Taylorverfahren genutzt. 
+Periodische Funktionen lassen sich leichter durch Fourierreihen in eine Summe aus Sinus und Cosinus entwickeln (Trigonometrische Interpolation).
+Um die Qualität zu beurteilen, muss der Fehler der Approximation abgeschätzt werden.
+
+\subsection{Ausgleichsrechnung}
+versucht die Parameter einer bestimmten Funktion so zu wählen, dass die Funktion möglichst gut diskrete Werte annähert.
+Meist wird die Methode der kleinsten Quadrate verwendet. 
+
+
+\section{Technische Realisierung}
+\subsection{Programmierung}
+\begin{description}
+	\item[Textuell]: Geometriedaten werden am Rechnerterminal programmiert (Offline)
+	\item[Grafisch]: Textuell mit Simulator auf CAD-Datenbasis
+	\item[Manuell]: Langsames führen der Gelenke in einer Trainingsphase. RAN wird mitgespeichert (Online)
+	\item[Sensoriell:] Online Aktualisierung eines Bewegungsablaufs durch Sensordaten.
+	\item[Icon-basiert:] ?
+
+\end{description}
+
+\subsection{Antriebskonzepte}
+dezentral: Motoren direkt an den Gelenken.\\
+zentral: Motoren an der Basis, mechanische Krafübertragung zu den Gelenken.\\
+
+\subsection{Technische Praxis}
+Die kinematische Vorwärtslösung sollte mit einer Zykluszeit von $\SI{1}{\milli\second}$ in Gleitkommadarstellung berechnet werden.
+
+
+
+\section{Regelungskonzepte}
+\begin{itemize}
+	\item Lage/Bahnregelung: Kontaktfrei\\
+		Vorsteuerung: Sollwerte für Geschwindigkeit und Beschleunigung.
+	\item Kraft/Momentregelung: Kontakt mit Umgebung
+	\item Hybridregelung: Bahn + Kraftregelung
+	\item visuell/Kamerageführte Roboterregelung
+\end{itemize}
+
+
+
+\section{Maschinelles sehen}
+Ortsfilterung mittels Faltung.\\
+Frequenzfilterung durch Fouriertransformation\\
+Kantendetektion mit Sobel-Operator (extrahiert beliebige Kantenrichtungen)\\
+Zusammen mit Laplace Operator Übergänge finden.\\
+Bildsegmentierung mit Schwellenwerttabfrage\\
+Hough-Transformation: Globale Verbindungsanalyse, findet Geraden.\\
+
+	\subsection{Bildbeschreibung durch Merkmale}
+	Drehlageninvariante Merkmale ohne Bezugspunkt.\\
+	\begin{itemize}
+		\item Objektumfang $U = \int g(x,y) \diff s$
+		\item Objektfläche $A = \iint g(x,y) \diff x \diff y$
+		\item Lochanzahl, Lochfläche
+	\end{itemize}
+	
+		Mit Bezugspunkt: Schwerpunkt, Inkreis, Umkreis
+
+	\subsection{Bildvergleich durch Template Matching}
+	
+	Drehlagenbestimmung\\
+
+
+\section{Praktikum}
+Planare Roboter mit Gelenkarmen.\\
+Vorwärtslösung: $\vect{r_x \\ r_y \\ \phi } = \vect{\cos(\sum \theta_i)a_n + ... + \cos(\theta_1)a_1 \\ \sin(\sum \theta_i)a_n + ... + \sin(\theta_1)a_1 \\ \sum \theta_i }$\\
+
+
+% Ende der Spalten
+\end{multicols}
+
+% Dokumentende
+% ======================================================================
+\end{document}
+
+
