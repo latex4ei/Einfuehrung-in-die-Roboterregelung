@@ -1,0 +1,708 @@
+% #####################################################################
+% #####################################################################
+% ##                                                                 ##
+% ##                                                                 ##
+% #####################################################################
+% #####################################################################
+% #####################################################################
+\documentclass[a4paper,landscape,6pt]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[ngerman]{babel}
+\usepackage[top=2.0cm,bottom=1.5cm,left=1.0cm,right=1.0cm]{geometry}
+\usepackage{enumitem}
+\usepackage{graphicx}
+\usepackage{amsfonts}
+\usepackage{amsmath}
+\usepackage{mathtools}
+\usepackage{sectsty}
+\usepackage{colortbl}
+\usepackage{cancel}
+\usepackage{listings}
+\usepackage{color}
+\usepackage{epstopdf}
+\usepackage{fancyhdr}
+\usepackage{tikz}
+\usepackage{multicol}
+
+
+\RequirePackage{mTex/mTex_boxes}
+\RequirePackage{mTex/colors}
+%\geometry{a4paper,landscape, left=5mm,right=5mm, top=20mm, bottom=5mm, asymmetric}
+
+\newcommand{\ma}[1]{\ensuremath{\boldsymbol {#1}}}								% Matrixsymbol
+\newcommand{\mat}[1]{\ensuremath{\begin{bmatrix} #1 \end{bmatrix}}}				% Matrix
+\newcommand{\tma}[3]{\ensuremath{{}_{#1} \ma #2_#3 }}							% Trafomatrix
+\renewcommand{\vec}[1]{\ensuremath{\boldsymbol {#1}}}							% Vektor fett und unterstrichen
+\newcommand{\vect}[1]{\ensuremath{\begin{pmatrix} #1 \end{pmatrix}}}			% Vector mit runden Klammern
+\newcommand{\mvect}[1]{\ensuremath{\left.\begin{matrix} #1 \end{matrix}\right]}}% Matrixvector
+\newcommand{\diff}[2]{\frac{\mathrm{d}#1}{\mathrm{d}#2}}
+\newcommand{\partdiff}[2]{\frac{\partial #1}{\partial #2}}						% partielle Ableitung
+\renewcommand{\exp}[1]{\textrm{e}^{#1}}											% e-Funktion
+\newcommand{\ul}[1]{\underline{#1}}
+%\newcommand\tab[1][1cm]{\hspace*{#1}}
+
+
+\setlist{itemsep=.01mm}
+\setenumerate{label=\emph{\arabic*})}
+\setlength{\columnsep}{1cm}
+\parindent 0mm
+
+\partfont{\huge}
+\sectionfont{\Large \sc\bf}
+\subsectionfont{\normalsize}
+\subsubsectionfont{\small\textit}
+
+\pagestyle{fancy}
+\lhead[\leftmark]{Einführung in die Roboterregelung}
+\chead[\leftmark]{Stand: \today}
+\rhead[\leftmark]{Johannes Teutsch}
+\lfoot[\leftmark]{}
+\cfoot[\leftmark]{Keine Garantie auf Vollständigkeit und Richtigkeit!}
+\rfoot[\leftmark]{\thepage}
+\renewcommand{\headrulewidth}{0.5pt}
+\renewcommand{\footrulewidth}{0.5pt}
+
+\begin{document}
+\begin{multicols}{3}
+	
+
+\part*{Einführung in die Roboterregelung}
+\section{Räumliche Repräsentation und Transformation}
+\subsubsection*{Beschreibung eines Objektpunktes im Raum}
+Ein Punkt $P$ kann durch seinen Positionsvektor $\ul p$ beschrieben werden:\\
+$P(3;2;1) \in \mathbb R^3 \rightarrow \ul p = 3 \ul e_x + 2 \ul e_y + 1 \ul e_z = \vect{3\\2\\1}$ \\
+ 
+Objekte werden im Objektkoordinatensystem durch eine Menge repräsentativer Punkte beschrieben (z.b. Eckpunkte).\\
+Objektmatrix bezogen auf Koordinatensystem $W$:\\ ${}_{W}{OM} = \vect{\ul p_1,&...&,\ul p_n}$\\
+Komplexere Objekte werden mit einem Gitternetz überzogen, deren Knotenpunkte in die Objektmatrix eingetragen werden.
+\subsubsection*{Räumliche Anordnung eines Objekts}
+Beschreibung der Lage (RAN) eines Objektes durch dessen Position und Orientierung (3+3=6 Zahlen). \\
+\textup{Frame-Konzept}: Statt RAN jedes Objektes wird die RAN des Objektsystems $S_b$ relativ zum Bezugssystem $S_a$ angegeben. Die Transformation von $S_b$ nach $S_a$ kann durch eine Veschiebung (Translation) und einer Verdrehung (Rotation) beschrieben werden.
+\subsubsection*{Klassische Transformationsbeziehung \footnotesize{(Skizze: S.23)}}
+Transformation der Beschreibung des Punktes $\ul p$ bezogen auf $S_b$ zu $\ul p$ bezogen auf $S_a$:\\
+$\boxed{{}_{a}{\ul p} = \ul r + {}^{a}{R}_b \cdot {}_{b}{\ul p}}$ mit $\ul r$: Translation und ${}^{a}{R}_b$: Rotation\\
+\subsubsection*{Verdrehung eines Koordinatensystems}
+\underline{Richtungskosinusmatrix}:\\
+
+${}^{a}{R}_b = {}^{a}{C}_b = \mat{c_{xx'} & c_{xy'} & c_{xz'} \\ c_{yx'} & c_{yy'} & c_{yz'} \\c_{zx'} & c_{zy'} & c_{zz'}}$\\
+
+$c_{xx'} = \cos(\text{Winkel zw. x-Achse von } S_a \text{und x'-Achse von } S_b)$\\
+
+\begin{infobox}{Eigenschaften von Rotationsmatrizen}
+\begin{itemize}
+	\item Orthogonalität: ${}^{a}{R}_b {}^{a}{R}_b^{\ma T} = E$
+	\subitem $\Rightarrow {}^{a}{R}_b^{\ma T} = {}^{a}{R}_b^{-1} = {}^{b}{R}_a$
+	\item $\det(R) = |R| = \left\{
+	\begin{array}{cl}
+	+1 & \quad \text{Rechtssystem} \\
+	-1 & \quad  \text{Linkssystem}
+	\end{array} \right. $
+%	\item Aus Orthonormalität der Basisvektoren folgt:
+%	\subitem $||\ul e_x|| = ||\ul e_y|| = ||\ul e_z|| = 1$
+%	\subitem $\ul e_x \cdot \ul e_y = \ul e_x \cdot \ul e_z = \ul e_y \cdot \ul e_z = 0$
+\end{itemize}
+\end{infobox}
+
+\subsubsection*{Elementare Rotationsmatrizen \footnotesize{(Skizzen: S.25, S.26)}}
+Drehung um eine einzige Achse von $S_a$ um Winkel $\theta$:\\
+
+$R_x = R(x,\theta_x) = \mat{1 & 0 & 0 \\ 0 & c\theta_x & -s\theta_x \\ 0 & s\theta_x & c\theta_x}$\\
+
+$R_y = R(y,\theta_y) = \mat{c\theta_y & 0 & s\theta_y \\ 0 & 1  & 0 \\ -s\theta_y & 0 & c\theta_y}$\\
+
+$R_z = R(z,\theta_z) = \mat{c\theta_z & -s\theta_z & 0 \\ s\theta_z & c\theta_z & 0 \\ 0 & 0 & 1}$\\
+
+Durch Verkettung elementarer Rotationsmatrizen kann man allgemeine Drehungen ${}^{a}{R}_b$ bestimmen:\\
+${}^{a}{R}_b = R_n \cdot R_{n-1} \cdot ... \cdot R_1$
+\begin{itemize}
+	\item Vormuliplikation: Rotationen in der Reihenfolge $1,2,\dots,n$ bedeutet Drehung des momentanen $S_b$ um die festen $S_a$-Achsen. Bezugssystem ist stehts $S_a$.
+	\item Nachmultiplikation: Rotationen in der Reihenfolge $n, n-1, \dots , 1$ bedeutet Drehung des momentanen $S_b$ um die momentanen $S_b$-Achsen. Bezugssystem ist hier immer das momentane $S_b$.
+\end{itemize}
+\subsubsection*{Orientierungsrepräsentation mit 3-Winkel-Parameter}
+\begin{itemize}
+	\item RPY-Winkel: Vormultiplikation (Roll/Pitch/Yaw)\\
+	${}^{a}{R}_b(\alpha, \beta, \gamma) = R(z,\alpha) \cdot R(y,\beta) \cdot R(x,\gamma)$
+	\item Euler-Winkel: Nachmultiplikation\\
+	${}^{a}{R}_b(\phi, \theta, \psi) = R(z,\phi) \cdot R(x,\theta) \cdot R(z,\psi)$
+\end{itemize}
+\subsubsection*{Rotationsmatrix gemäß Eulerschem Satz \footnotesize{(Skizze: S.28)}}
+Rotation um Drehachse $\ul k$ ($|\ul k| = 1$) mit Winkel $\Theta$:\\
+
+$\text{Rot}(\ul k,\Theta) = \\\\
+ \mat{k_x k_x v\Theta + c\Theta & k_y k_x v\Theta - k_z s\Theta & k_z k_x v\Theta + k_y s\Theta & 0 \\
+	 k_x k_y v\Theta + k_z s\Theta & k_y k_y v\Theta + c\Theta & k_z k_y v\Theta - k_x s\Theta & 0 \\
+	 k_x k_z v\Theta - k_y s\Theta & k_y k_z v\Theta + k_x s\Theta & k_z k_z v\Theta + c\Theta & 0 \\
+     0 & 0 & 0 & 1 \\ }$\\
+mit $v\Theta = 1-\cos \Theta$, $c\Theta = \cos \Theta$, $s\Theta = \sin \theta$.\\
+
+Inverser Zusammenhang: $\text{Rot}(\ul k,\Theta) \Rightarrow \ul k , \Theta$ ?
+
+$\text{Rot}(\ul k,\Theta) =
+\mat{n_x & s_x & a_x & 0 \\
+	n_y & s_y & a_y & 0 \\
+	n_z & s_z & a_z & 0 \\
+	0 & 0 & 0 & 1 \\ }$\\
+$\cos\Theta = \frac{1}{2}(n_x + s_y + a_z -1)$\\
+$\sin\Theta = \pm \frac{1}{2}\sqrt{(s_z - a_y)^2 + (a_x - n_z)^2 + (n_y - s_x)^2}$\\
+$\boxed{ \Rightarrow \Theta = \text{arctan}\big( \frac{\sin\Theta}{\cos\Theta} \big) }$\\
+$\boxed{ \Rightarrow \ul k = \frac{1}{2sin\Theta} \mat{s_z - a_y ,& a_x - n_z ,& n_y - s_x}^{\ma T} }$\\
+
+Eindeutige Lösungen in 4 Quadranten ($\alpha \in [-\pi, \pi]$):\\
+
+$\alpha = \text{atan2}(b,a) = \left\{
+\begin{array}{cl}
+\text{arctan}(\frac{b}{a}) & \quad \text{für } a > 0 \\
+\frac{\pi}{2} & \quad  \text{für } a = 0 \wedge b > 0 \\
+-\frac{\pi}{2} & \quad  \text{für } a = 0 \wedge b < 0 \\
+\text{arctan}(\frac{b}{a}) + \pi & \quad \text{für } a < 0 \wedge b \ge 0 \\
+\text{arctan}(\frac{b}{a}) - \pi & \quad \text{für } a < 0 \wedge b < 0 \\
+\end{array} \right. $
+Skizze: S.30
+\newpage
+\begin{infobox}{Quaternion-Repräsentation}
+Diese Darstellung hat häufig Rechenvorteile gegenüber dem Arbeiten mit Transformationsmatrizen.\\
+Hyperkomplexe Zahl $Q = (s, \ul v) = (s, i v_x + j v_y + k v_z)$\\
+\begin{itemize}
+	\item $i^2 = j^2 = k^2 = ijk = -1$
+	\item Q-Addition: $Q_1 + Q_2 = (s_1 + s_2, \ul v_1 + \ul v_2)$
+	\item Q-Multiplikation (nicht kommutativ):\\$Q_1 \circ Q_2 = (s_1 s_2 - \ul v_1 \cdot \ul v_2, s_1 \ul v_2 + s_2 \ul v_1 + \ul v_1 \times \ul v_2)$\\
+	
+	\item Translations-Quaterntion: $Q_T = (0, \ul r)$
+	\item Rotations-Quaternion: \\ $Q_R = (\cos(\frac{\Theta}{2}), \sin(\frac{\Theta}{2}) \ul k) = e^{\ul k (\Theta / 2)}$
+	\item Umkehr-Rotation: \\ $Q_R^{-1} = (\cos(\frac{\Theta}{2}), -\sin(\frac{\Theta}{2}) \ul k) = Q_R^*$
+	\item Trafo ${}_{a}{\ul p} = \ul r + {}^{a}{R}_b(\ul k, \Theta) {}_{b}{\ul p}$ mit Quaternionen:\\
+	\subitem ${}_a Q = (0, {}_{a}{\ul p}) = Q_T + Q_R \circ {}_b Q \circ Q_R^{-1}$
+\end{itemize}
+\end{infobox}
+\subsection*{Homogene Transformation}
+Überführung der klassischen Transformationsbeziehung in eine einizge Matrix-Vektor-Multiplikation:\\
+
+$\boxed{ {}_{a}{\ul {\hat p}} = \mat{{}_{a}{\ul p} \\ 1} =  {}^{a}{T}_b \cdot {}_{b}{\ul {\hat p}} = \mat{{}^{a}{R}_b & \ul r \\ \ul f^{\ma T} & w} \cdot \mat{{}_{b}{\ul p} \\ 1} }$\\
+
+mit $\ul f^{\ma T}$: perspektivische Transformation, $w$: Skalierung. Meistens: $\ul f^{\ma T} = \ul 0^{\ma T}$, $w=1$\\
+Effektor-spezifische Schreibweise: ${}^{O}{T}_E = \mat{\ul n & \ul s & \ul a & \ul r \\ 0 & 0 & 0 & 1}$\\
+
+\subsubsection*{Inverse homogene Transformation}
+$({}^{a}{T}_b)^{-1} = \mat{({}^{a}{R}_b)^{\ma T} & -({}^{a}{R}_b)^{\ma T} \ul r \\ \ul 0^{\ma T} & 1} $\\
+\subsubsection*{Sonderfälle homogener Transformationen}
+Reine Translation: 
+$\text{Trans}(r_x,r_y,r_z) = \mat{E & \ul r \\ \ul 0^{\ma T} & 1}$\\
+Reine elementare Rotation:
+$\text{Rot}(x,\theta_x) = \mat{R(x,\theta_x) & \ul 0 \\ \ul 0^{\ma T} & 1}$\\
+\subsubsection*{Absolute und relative Transformation}
+%Abb II.11, Seite 34
+Absolute Transformationen: ${}^{O}{T}_a$, ${}^{O}{T}_b$\\
+Relative Transformation: ${}^{a}{T}_b$\\
+
+${}^{O}{T}_b = {}^{O}{T}_a \cdot {}^{a}{T}_b \Rightarrow {}^{a}{T}_b = ({}^{O}{T}_a)^{-1} \cdot {}^{O}{T}_b$
+\begin{itemize}
+	\item Jedes Objektkoordinatensystem (Frame) kann Bezugssystem für beliebig viele andere Frames sein.
+	\item Jedes Objektkoordinatensystem (Frame) darf jedoch jeweils nur an ein einziges momentanes Bezugssystem gebunden sein
+\end{itemize}
+%Abb II.14, Seite 36
+
+%-----------------------------------------------------------------------------------------------------
+\section{Manipulatorkinematik-Modell}
+\ul{Kinematik:} Bewegungslehre. Befasst sich mit Geometrie der Objekte sowie Geschwindigkeit und Beschleunigung der Bewegung.\\
+\ul{Kinetik:} Erweiterung der Kinematik um den Einfluss der Massenträgheit der Objekte sowie dynamischer Kräfte.
+\subsubsection*{Manipulator als kinematische Kette}
+Idealisierte Darstellung des Manipulators als Kette von starren Gliedern und Gelenken.\\
+\ul{Arten von Gelenken:} rotatorisch (Drehgelenk) oder translatorisch (Schubgelenk)\\
+\ul{offene Kette:} Kein Kraftschluss über Umgebung zum Manipulatorfußpunkt.\\
+Geometrischer Ansatz zur Beschreibung bei einfachen Ketten (z.B. bei $N\le 3$ Gliedern) oder bei kartesischen Robotern sinnvoll. Bei komplizierteren Strukturen: formaler Ansatz über Frame-Konzept
+\subsection*{Kinematische Modellbildung mit Frame-Konzept}
+Gliedfeste Koordinatensysteme $S_n$ festlegen, mit $S_0 = S_F$ (Fußpunkt) und $S_N = S_E$ (Endeffektor).\\
+$N$-Achsen vom Fußpunkt bis Endeffektor $\rightarrow$ $N+1$ Frames.\\
+Ziel: ${}^{F}{T}_E(\ul{q}) = \prod\limits_{n=1}^N A_n$\\
+mit $A_1 = {}^{F}{T}_1$, $A_n = {}^{n-1}{T}_n$, $A_N = {}^{N-1}{T}_E$\\
+$\ul{q} = [\theta_1, \theta_2, \dots , \sigma_n, \dots, \theta_N]$ ist der verallgemeinerte Gelenkswinkelvektor, mit $\theta_i$: Drehgelenk, $\sigma_i$: Schubgelenk
+\subsubsection*{Denavit-Hartenberg-Vereinbarungen \footnotesize{(Skizze: S.41)}}
+Übliche Festlegung der Manipulatorglieder-Parameter:\\
+\ul{Frame $S_n$:}
+\begin{itemize}
+	\item $z_n$: Bewegungs-(Dreh-,Linear-)achse für $S_{n+1}$, Richtung korrespondierend mit $\theta_{n+1}$ bzw. $\sigma_{n+1}$.
+	\item $O_n$: Ursprung von $S_n$; im Schnittpunkt der gemeinsamen Normalen $\ul{a_n}$ von $z_n$/$z_{n-1}$-Achse mit der $z_n$-Achse (Abstand $a_n$).
+	\item $x_n$: auf $a_n$, von $z_{n-1}$ nach $z_n$-Achse zeigend ($|a_n| = 0 \rightarrow $ Normale auf $z_n$/$z_{n-1}$-Ebene).
+	\item $y_n$: entsprechend Rechtssystem $\ul{e_y} = \ul{e_z} \times \ul{e_x}$
+	\item $l_n$: Länge des Gliedes $n$
+\end{itemize}
+\ul{Relation $S_n \rightarrow S_{n-1}$ (Koinzidenz als Ausgangspunkt)}
+	\begin{itemize}
+		\item $\theta_n$: Drehwinkel des Gliedes $n$ um $z_{n-1}$; zwischen $(x_{n-1},x_n)$
+		\item $d_n$: \glqq Off-Set" (Entfernung) der Normalenschnittpunkte $(a_{n-1},a_n)$
+		\item $a_n$: \glqq Abstand" (gemeinsame Normale) der benachbarten, windschiefen Drehachsen $(z_{n-1},z_n)$
+		\item $\alpha_n$: Verdrehwinkel zwischen $(z_{n-1}, z_n)$, um $x_n$
+	\end{itemize}
+$\Rightarrow A_n = \text{Rot}(z,\theta_n) \cdot \text{Trans}(0,0,d_n) \cdot \text{Trans}(a_n,0,0) \cdot \text{Rot}(x,\alpha_n)$\\
+$= \mat{c\theta_n & -s\theta_n \cdot c\alpha_n & s\theta_n \cdot s\alpha_n & a_n \cdot c\theta_n \\
+	s\theta_n & c\theta_n \cdot c\alpha_n & -c\theta_n \cdot s\alpha_n & a_n \cdot s\theta_n \\
+	0 & s\alpha_n & c\alpha_n & d_n \\
+	0 & 0 & 0 & 1 \\ }$\\
+\newpage
+Feste Parameter: $a_n$, $\alpha_n$, $d_n$. Beschreiben Struktur des Gliedes $n$.\\
+Variablen: $\theta_n$ bzw. $d_n(\sigma_n)$. Beschreiben relative rotatorische bzw. translatorische Bewegung des Gliedes $n$.
+\ul{Spezialfälle:} 
+\begin{itemize}
+	\item Gelenkachsenpaar $(z_{n-1},z_n)$ ist parallel:\\
+		$\rightarrow \alpha_n = 0^\circ, 180^\circ$ ; $a_n = l_n$ ;
+	\item Gelenkachsenpaar schneidet sich in einem beliebigen Punkt:\\
+		$\rightarrow a_n = 0$ und $x_n$ normal auf $z_n$/$z_{n-1}$-Ebene annehmen;
+	\item Gelenkachsenpaar schneidet sich so, dass Ursprung von $S_n$ und $S_{n-1}$ identisch:\\
+		$\rightarrow$ wie bei beliebigen Punkt + zusätzlich $d_n = 0$; (Kardangelenk)
+	\item  im Falle einer Schubachse mit $\sigma_n$:\\
+		$\rightarrow d_n(\sigma_n)$ auf $z_{n-1}$; $a_n = 0$, da bedeutungslos.
+\end{itemize}
+\begin{cookbox}{Modellbildung: \footnotesize{Ausgehend von \\ \tab Kinematik-Schema (z.B. Skizze S.42)}}
+	\begin{itemize}
+		\item Koordinatensysteme und Bezeichungen gemäß D-H-Vereinbarungen eintragen
+		\item Parameter $q_n$, $\alpha_n$, $a_n$, $d_n$ in Tabelle eintragen und gegebenfalls Begrenzungen für $q_n$ angeben
+		\item $A_n$ explizit symbolisch berechnen
+		\item ${}^{F}{T}_E = \prod_{n=1}^N A_n$ berechnen
+	\end{itemize}
+\begin{tabular}{|c| c | c | c| c|}
+	\hline
+Glied $n$& Gelenkvariable $q_n$ & $\alpha_n$ & $a_n$ & $d_n$ \\
+	\hline
+	 1 & & & & \\
+	 2 & & & & \\
+	$\vdots$ &  & & & \\
+	\hline
+\end{tabular}
+\end{cookbox}
+Ergebnis: Vorwärtskinematikmodell / direkte Kinematik / Vorwärtslösung (VWL):
+${}^{F}{T}_E = \mat{{}^{F}{R}_E (\ul q) & {}^{F}{\ul r}_E (\ul q) \\ \ul 0^{\ma T} & 1} $\\
+$\rightarrow$ Abbildung von Gelenk- bzw. Konfigurationsraum in Arbeitsraum (kartesische Welt). Stellt den Zusammenhang zwischen Gelenk- bzw. Achsvariablen $\ul q$ und den Weltkoordinaten des Effektors (${}^{F}{R}_E$ und ${}^{F}{\ul r}_E$) her.\\
+
+\ul{Beispiel:} zweiachsiger SCARA-Manipulator (S.46)\\
+%Abb.III.8, Seite 46
+Geometrische Modellierung: ($\varphi_1 = \theta_1$, $\varphi_2 = \theta_1 + \theta_2$)\\
+VWL $\ul w = \mat{x ,& y , & \phi}^T = \ul f(\ul \varphi)$ :\\
+$x=l_1 \cos \varphi_1 + l_2 \cos \varphi_2$\\
+$y=l_1 \sin \varphi_1 + l_2 \sin \varphi_2$\\
+$\phi = \varphi_2$\\
+Alternative Modellierung mit Homogenen Transformationen:\\
+${}^{0}{T}_E= \mat{c_2 & -s_2 & 0 & l_1 c_1 + l_2 c_2\\
+	s_2 & c_2 & 0 & l_1 s_1 + l_2 s_2 \\
+	0 & 0 & 1 & 0 \\
+	0 & 0 & 0 & 1 \\ }$ (Fehler im Skript)\\
+%-----------------------------------------------------------------------------------------------------
+\section{Inverses Manipulatorkinematik-Modell und Jacobi-Modelle}
+Ziel: Aus gegebenen RAN ${}^{0}{T}_E$ bzw. Vektor der Weltkoordinaten $ \ul w = \mat{\ul r \\ \ul \Omega}$ ($\ul r$: Verschiebungswinkelvektor, $\ul \Omega$: Orientierungswinkelvektor) soll der Gelenkwinkelvektor $\ul q$ ermittelt werden $\rightarrow$ Inverses Kinematikmodell / Rückwärtslösung (RWL).
+\subsection*{Allgemeine Probleme der RWL}
+$\ul q = \ul f^{-1}(\ul w) = \ul g (\ul w); \tab \ul w \in \mathbb{R}^W, \ul q \in \mathbb{R}^N;$\\
+Frage: Wann existiert $\ul g(.)$ und ist die Lösung eindeutig?\\
+
+\ul{Beispiel-Fall:} W = N = 2, zweiachsiger SCARA-Manipulator\\
+VWL: $\mat{x\\y} = \ul f (\ul \varphi), \ul \varphi = \mat { \varphi_1 \\ \varphi_2}$\\
+Gesuchte RWL: $\ul \varphi = \ul g (x,y)$\\
+Arbeitsraum $\ma{\mathcal{A}} \subset \mathbb{R}: |l_1 - l_2| \le \sqrt{x^2 + y^2} \le |l_1 + l_2|$\\
+\begin{tabular}{|c|c|}
+	\hline
+	P außerhalb $\ma{\mathcal{A}}$ & keine Lösung \\
+	P auf äußerem Rand von $\ma{\mathcal{A}}$ & genau eine Lösung\\
+	P innerhalb von $\ma{\mathcal{A}}$ & zwei Lösungen \\
+	P auf innerem Rand von $\ma{\mathcal{A}}$ & genau eine Lösung \\
+	P auf Drehpunkt D ($l_1 = l_2$) & unendlich viele Lösungen \\
+	\hline
+\end{tabular}\\
+
+Mehrdeutige Lösungen: verschiedenartige Manipulator-Konfigurationen führen zu gleichen Arbeitsraum-Spezifikationen (z.B. Ellbogen hoch/tief).\\
+Bei festem $W$ steigt die Anzahl der Mehrdeutigkeiten mit wachsender Anzahl von Manipulatorachsen $N \rightarrow$ kinematische Redundanz. (Beispielskizze: S.49)\\
+\subsection*{Numerische Berechnung der RWL}
+Ausgehend von VWL $\ul w = \ul f( \ul q)$ löst man mit dem Newton-Raphson-Verfahren das Gleichungssystem $\ul f(\ul q) - \ul w = 0$: $\boxed{\ul q ^{(\nu+1)} = \ul q^{(\nu)} - J^{-1}(\ul q^{(\nu)}) \cdot (\ul f(\ul q^{(\nu)}) - \ul w)}$\\
+mit $\nu$: Iterationsindex, $J=\mat{\partial f_i / \partial q_j} \in \mathbb{R}^{N \times N}$: Jacobi-Matrix.\\
+Iteration wird entweder bei $\nu_{max}$ oder bei hinreichend kleiner Verbesserung $|\ul q ^{(\nu+1)} - \ul q ^{(\nu)}| < \epsilon$ abgebrochen.\\
+\ul{Vorteil:} Es muss kein explizites Gleichungssystem der RWL vorliegen.\\
+\ul{Nachteile:} aufwendiger und langsamer RWL-Algorithmus; Einzugsbereich der Iteration bei Mehrdeutigkeiten unklar; Vorsicht bei Singularitäten der Jacobi-Matrix $J$ ($\det (J) = 0)$.\\
+Besser: Falls möglich explizites, analytisches Modell für RWL herleiten.
+\subsection*{Algebraische Ermittlung der RWL  \footnotesize{für zweiachsigen SCARA-Manipulator (Skizze: S.51)}}
+Ansatz: ${}^{0}{T}_E(\ul \theta) =$ \\ $= \mat{c_{12} & -s_{12} & 0 & l_1 c_1 + l_2 c_{12}\\
+	s_{12} & c_{12} & 0 & l_1 s_1 + l_2 s_{12} \\
+	0 & 0 & 1 & 0 \\
+	0 & 0 & 0 & 1 \\ } \overset{!}{=} \mat{\rho_{11} & \rho_{12} & \rho_{13} & x\\
+	\rho_{21} & \rho_{22} & \rho_{23} & y \\
+	\rho_{31} & \rho_{32} & \rho_{33} & z \\
+	0 & 0 & 0 & 1 \\ }$\\
+$\ul \theta$ bezeichnet die Gelenkwinkel gemäß DH-Vereinbarungen.\\
+Gesucht: RWL $\ul \varphi = \ul g(\ul w) = \ul g(x,y)$, $\ul \varphi = \mat{\theta_1 \\\theta_1 + \theta_2}$.\\
+$\Rightarrow \boxed{\theta_2^{\pm} =\text{atan2}(s_2,c_2)}$\\
+$\Rightarrow \boxed{\theta_1^{\pm} = \text{atan2}(y,x) - \text{atan2}(l_2 s_2, l_1 + l_2 c_2 )}$\\
+mit $c_2 = \frac{x^2 + y^2 - l_1^2 - l_2^2}{2 l_1 l_2}$, $s_2 = \pm \sqrt{1-c_2^2}$; $+$: tief / $-$: hoch
+Geometrische Ermittlung: S.52
+\subsection*{Differentielle kinematische Manipulatormodelle}
+Vorausgesetzt $W =N$.\\ Für festes $\ul q$ erhält man die folgenden Jacobi-Modelle:\\
+Differentielle VWL: $\boxed{ d\ul w = J(\ul q) d\ul q}$ 
+$\rightarrow$ lokale lineare Beziehung zwischen kleinen Veränderungen von Arbeits-(Welt-) und Gelenkkoordinaten. Für reguläres $J(\ul q)$:\\
+Differentielle RWL: $\boxed{ d\ul q = J^{-1}(\ul q) d\ul w}$ \\
+
+Mögliche Anwendung: inkrementelle Bahnberechnung. Gewünschte Effektorbahn $\ul w(s)$ in kleine Bahninkremente $d\ul w$ zerlegen und mit der differentiellen RWL notwendige Gelenkwinkel sukzessive bestimmen:\\
+$\boxed{\ul q^{(i+1)} = \ul q^{(i)} + d \ul q = \ul q^{(i)} + J^{-1}(\ul q^{(i)}) d\ul w \tab i = 0,1,2, \dots}$\\
+Vorsicht: unvermeidbare Fehlerakkummulation.\\
+
+\ul{Geschwindigkeitsmodell:}
+Zusammenhang zwischen Effektorgeschwindigkeit und Gelenkgeschwindigkeit:\\
+\tab $\boxed{ \ul {\dot w} = J(\ul {q}) \ul {\dot q}}$ bzw. $\boxed{ \ul {\dot q} = J^{-1}(\ul {q}) \ul {\dot w}}$\\
+
+\ul{Statisches Kräfte/Momenten-Modell:}\\
+$\ul{\mathcal{F}}$: statische Kontaktkräfte / äußere Kräfte\\
+$\ul \tau$: verallgemeinerte Gelenkmomente (verallgemeinert: je nach Anwendungsfall Kräfte und Momente enthalten)\\
+Prinzip der virtuellen Arbeit: Für ein sich in Ruhe befindender, reibungsfrei arbeitender Manipulator muss die infolge kleiner Verschiebungen geleistete Arbeit in Welt- oder Gelenkkoordinaten gleich sein: $d\ul w ^T \ul{\mathcal{F}} = d \ul q^T \ul \tau$\\
+$\tab \Rightarrow \boxed{\ul \tau = J^T(\ul q) \ul{\mathcal{F}}}$ bzw. $\boxed{\ul{\mathcal{F}} = (J^T(\ul q))^{-1} \ul \tau}$
+\subsection*{Kinematische Singularitäten \footnotesize{(Skizze: S.56)}}
+Als kinematische Singularität / Degeneration bezeichnet man den lokalen Verlust von Bewegungsfreiheitsgraden, sodass dem Manipulator lokal nur noch $N_{eff} < N$ Bewegungsfreiheitsgrade zur Verfügung stehen. Dies gilt bei Konfigurationen $\ul q$, bei denen $\det(J(\ul q)) = 0$ gilt.\\
+
+\ul{Praktische Auswirkung:} In der Nähe von singulären Manipulator-Konfigurationen $\ul q^*$ müsste $\ul{\dot q}$ auch für kleines $\ul{\dot w}$ sehr hohe Werte annehmen, um dieser Vorgabe zu folgen. Da das praktisch meist wegen begrenzter Gelenkgeschwindigkeit nicht möglich ist, ist ein kartesischer Bahnfehler die Folge. Für Kräfte gilt in singulären Konfigurationen, dass bei noch so großen Gelenkmomenten keine Kraftwirkung in gewisse Richtungen möglich ist.\\
+\ul{Vermeiden von Manipulator-Singularitäten}:\\
+
+Methode der gedämpften kleinsten Quadrate\\ $\tab \rightarrow \boxed{\ul{\dot q_\lambda} = (J^T J(\ul q) + \lambda^2 E)^{-1}J^T(\ul q)\ul{\dot w}}$\\
+Vergrößerung des Gewichtfaktors $\lambda$: singuläre Konfigurationen werden deutlich umfahren, jedoch nimmt der Bahnfehler zu.
+\subsection*{Kinematisch redundante Manipulatoren}
+Kinematische Redundanz: Anzahl Bewegungsachsen größer als Dimension des relevanten Arbeitsraums $\ma{\mathcal{A}}\subset \mathbb{R}^W$, d.h. $\ul q \in \mathbb{R}^N$, $\ul w \in \mathbb{R}^W$, $N>W$.\\
+Manipulatorredundanz kann genutzt werden, um trotz komplexer Hinderniskonfiguration im Arbeitsraum dennoch gewünschte Effektor-RAN einstellen zu können, kinematische Singularitäten zu vermeiden und gute lokale Manipulierbarkeit sicherzustellen.
+\subsubsection*{Redundanz und differentielle Modelle}
+Annahme: $J(\ul q) \in \mathbb{R}^{W \times N}$, $N>W$, Rang$(J) = W =$ voll\\
+VWL $ d\ul w = J(\ul q) d\ul q$ ist somit ein unterbestimmtes Gleichungssystem. Es gibt verschiedene Methoden, geeignete Lösungen aus dieser Lösungsvielfalt (in Bezug auf RWL) auszuwählen:\\
+\begin{itemize}
+	\item \ul{Min-Norm-Lösung}: $\min||\ul{\dot q}||^2$\\
+	$\Rightarrow \boxed{\ul{\dot q} = J^+(\ul q) \ul{\dot w} = J^T(JJ^T)^{-1}(\ul q) \ul{\dot w}}$\\
+	mit $J^+$: Pseudo-Rechts-Inverse ($JJ^+ = E_W$)
+	
+	\item \ul{Hinzufügen kinematischer Zwangsbedingungen}:\\
+	Aufstellen von $N-W$ zusätzlichen, technisch-relevanten Zwangsbedingungen für Gelenkwinkel $\ul h(\ul q) = \ul 0$, z.B. $q_1 + q_2 - \text{konst.} = 0$, somit ist das System nicht mehr unterbestimmt. \\
+	$\Rightarrow \mat{\ul w \\ \ul 0} = \mat{\ul f(\ul q) \\ \ul h(\ul q)} \rightarrow \mat{\ul{\dot w} \\ \ul 0} = \tilde{J}(\ul q) \ul{\dot q}$, $\tilde{J} \in \mathbb{R}^{N\times N}$\\
+	$\rightarrow$ umkehrbar für reguläres $\tilde{J}$.
+	
+	\item \ul{Maximierung eines Manipulierbarkeitsmaßes $\mu(\ul q)$}:\\
+	$\mu(\ul q)$ bezüglich redundanter Koordinaten $\ul q$ maximieren $\rightarrow$ Manipulator nimmt bevorzugt Konfigurationen $\ul q$ mit guter Manipulierbarkeit ein (gewünschte kleine Veränderung der Effektorlage mit geringstmöglichen Veränderungen der Gelenkwinkel).
+	Häufige Wahl: $\boxed{\mu(\ul q) = \sqrt{\det(J(\ul q)J^T(\ul q))}}$
+	
+	\item \ul{Self-Motion}: Obwohl Gelenkgeschwindigkeit ungleich 0 ($\ul{\dot q} \ne 0$), behält Effektor feste räumliche Anordnung ($\ul{\dot w} = 0$). Allgemeine Rückwärtslösung: $\ul{\dot q} = J^+ \ul{\dot w} + (E_N - J^+ J)\ul{\dot q_0} \rightarrow$ Self-Motion-Anteil (Nullraumbewegung): $(E_N - J^+ J)\ul{\dot q_0}$, mit $\ul{\dot q_0} = z$: beliebiger N-elemtiger Vektor. Typische Wahl: $\ul{\dot q_0}=k_0 \frac{\partial \mu (\ul q)}{\partial \ul q}$, mit $\mu$: Zielfunktion. (Skizze: S.60)
+\end{itemize}
+\ul{Zusatz zu Manipulierbarkeitsmaß / Geschwindigkeits-Ellipse}: beschreibt Fähigkeit eines Manipulators, beliebige Änderungen der Effektorposition- und orientierung durchzuführen.\\
+%($\ul{\dot q}^T\ul{\dot q}$ wird auf $\ul{\dot w}^T(JJ^T)^{-1}\ul{\dot w}$ abgebildet).\\
+-entlang großer Hauptachse schnelle Bewegung möglich\\
+-Ellipsoid $\approx$ Kugel $\rightarrow$ isotropische Bewegung\\
+-typische Maße $\mu(\ul q)$: Verhältnis von minimalem und maximalen Singulärwert ($\sigma_i = \sqrt{\lambda_i(JJ^T)}$); minimaler Singulärwert (Radius des Ellipsoids); geometrisches Mittel der Radien ($(\sigma_1\cdot\dots\cdot\sigma_m)^{1/m}$)
+\newpage
+%-----------------------------------------------------------------------------------------------------
+\section{Kinematische Bahnplanung- und interpolation}
+%Idee: Ausgehend von Punkten im Arbeitsraum, die der Endeffektor anfahren soll, stetige Bahnen für Bewegungsablauf entwerfen.\\
+\ul{Weg/Pfad:} Kurve im Arbeitsraum von Startpunkt $S$ zu Zielpunkt $Z$. Zeit spielt bei Wegeplanung keine Rolle!\\
+\ul{Bahnplanung}: kinematische Trajektorienplanung, d.h. unter Berücksichtigung des kinematischen Modells und Randbedingungen für Zustandsgrößen. Zeit spielt eine Rolle!
+Typisches kinem. Modell: Doppelintegrierer \\ $\rightarrow$ Zustandsgrößen: $\ul s(t), \ul v(t) = \ul {\dot s}(t)$\\
+Typ. Randwertvorgaben für Bahnabschnitt $P_i \rightarrow P_{i+1}$:\\
+-diskrete Bahnstützpunkte $P_i: \ul s_i$, $ \ul{\dot s}_i$ / $P_{i+1}: \ul s_{i+1}$, $\ul{\dot s}_{i+1}$\\
+-Übergangszeit: $\tau_i = t_{i+1} - t_i$
+\subsubsection*{Typen von Bahnpunkten $P_i$ \footnotesize{(Skizze: S.63)}}
+\ul{Start- und Zielpunkte} $S$ bzw. $Z$. Sind exakt zu erreichen. Geschwindigkeit $\ul v$ meist 0.\\
+\ul{Durchpunkte} $D$. Sind mit definiertem $\ul v$ zu durchfahren.\\
+\ul{Viapunkte} $V$. Sind möglichst nahe zu passieren.\\
+
+(Bahntypen: Tabelle S.64)
+\subsubsection*{Verfahren zur Bahnkoordinierung \footnotesize{(Skizze: S.64)}}
+-\ul{Planung im Gelenk-/Konfigurationsraum:} lineare Bewegung von $\ul q_i \rightarrow \ul q_{i+1}$ führt wegen VWL zu meist komplizierten Bahnen von $\ul w$. \ul{Merkmale}: Geringer Rechenaufwand; einfache Verhinderung von Singularitäten; Überwachung auf äußere Kollisionen nötig.\\
+-\ul{Planung im Arbeitsraum:} lineare Bewegung von $\ul w_i \rightarrow \ul w_{i+1}$ führt wegen RWL zu komplizierten Bahnen von $\ul q$. \ul{Merkmale}: Sehr hoher Rechenaufwand; Vermeidung äußerer Hindernisse einfach; Vorkehrungen zum Umfahren von Singularitäten nötig.
+\subsection*{Gelenkraumorientierte Bahn-Interpolation}
+\subsubsection*{Bahninterpolation durch kubische Polynome:}
+Ansatz: $q(t) = a_0 + a_1 t + a_2 t^2 + a_3 t^3$\\
+Die Gelenkwinkeln $q^i$, $q^{i+1}$ entsprechen Durchpunkte. \ul{Randwertspezifkationen:} $q(t_i = 0) = q_0$, $\dot q(t_i=0) = \dot q_0$\\ $q(t_{i+1} = \tau) = q_e$, $\dot q(t_{i+1}=\tau) = \dot q_e$. \\
+
+$\Rightarrow a_0 = q_0$, $a_1 = \dot q_0$, $a_2 = \frac{3}{\tau^2}(q_e - q_0) - \frac{2}{\tau}\dot q_0 - \frac{1}{\tau} \dot q_e$,\\$a_3 = - \frac{2}{\tau^3}(q_e - q_0) + \frac{1}{\tau^2}(\dot q_e + \dot q_0)$.\\
+
+\ul{Abschätzung der Übergangszeit:} $\tau$: Zeit von $q_0$ zu $q_e$.\\
+-Bei gegebener Maximalgeschwindigkeit $\dot q_{max,n}$:\\ $\rightarrow \tau_{q_n} > |q_{e,n} - q_{0,n}|/\dot q_{max,n} = |\Delta q_n|/\dot q_{max,n}$\\
+-Bei gegebener Maximalbeschleunigung  $\ddot q_{max,n}$:\\
+$\rightarrow \tau_{q_n} > \sqrt{2|\Delta q_n|/\ddot q_{max,n}}$\\
+
+$\Rightarrow \tau \ge \max(\tau_{q_1}, \dots , \tau_{q_N})$
+\subsubsection*{Lineare Interpolation mit quadratischen Übergängen}
+Einfache Methode mit geringem Rechenaufwand, jedoch unstetigem $\ddot q(t)$. $B$ und $C$: Viapunkte. (Skizze: S.73)\\
+$t_{Be}$: vom Antrieb vorgebbare Beschleunigungszeit.\\
+
+\ul{$\rightarrow$ Beschleunigungsphase} $(-t_{Be} \le t < t_{Be}):$\\
+Randspezifikationen: $q(-t_{Be}) = A$, $\dot q(t_{Be}) = \Delta B/t_{Be}$, $\dot q(+t_{Be}) = \Delta C / \tau$, mit $\Delta B = B - A$, $\Delta C = C - B$.\\
+
+$\Rightarrow q(t) = [(\Delta C \frac{t_{Be}}{\tau} - \Delta B)h' + 2\Delta B]h' + A\\
+ \Rightarrow \dot q(t) = \frac{1}{t_{Be}}[(\Delta C \frac{t_{Be}}{\tau} - \Delta B)h' + \Delta B]\\
+ \Rightarrow \ddot q(t) = \frac{1}{2t_{Be}^2}[\Delta C \frac{t_{Be}}{\tau} - \Delta B]$ \tab mit $h' = \frac{t_{Be} + t}{2t_{Be}}$\\
+ 
+ \ul{$\rightarrow$ Gleichförmigkeitsphase} $(t_{Be} \le t <\tau - t_{Be}):$\\
+ Randswerte: $q(\tau) = C$, $\dot q(\tau) = \Delta C / \tau$.\\
+ 
+ $\Rightarrow q(t) = \Delta C h + B$ \tab mit $h = t/\tau$ \\
+ $\Rightarrow \dot q(t) = \frac{\Delta C}{\tau} \tab \Rightarrow \ddot q(t) = 0$\\
+ 
+ Erweiterung auf andere Typen von Bahnpunkten: S.67
+ Bahninterpolation im Arbeitsraum: Einfach $q$ mit $w$ ersetzen.
+ 
+ \ul{Generelle Probleme der Bahnplanung:}\\
+ Stets überprüfen (z.B. über Simulation), dass:\\
+ -alle Bahnpunkte im Arbeitsraum $\ma{\mathcal{A}}$ liegen\\
+ -keine Singularitäten durchlaufen werden\\
+ -innere und äußere Kollisionen vermieden werden.
+ \subsubsection*{Kinetische Bahnplanung}
+ Kinematische Bahnplanung beachtet die Kinetik des Manipulators näherungsweise durch die Kenngrößen $\dot q_{max}$,$\ddot q_{max}$, $t_{Be}$, führt jedoch zu langsamen Bahnverläufen. Betrachtung des dynamischen Modells (kinetische Bahnplanung) ist aufwändiger, führt aber zu schnelleren Manipulatorvorgängen.\\
+ 
+ Wegeplanung in beschränkten Arbeitsräumen: S.70-72
+ %-----------------------------------------------------------------------------------------------------
+ \section{Manipulatordynamik}
+ \subsection*{Langrange'sche Bewegungsgleichung 2.Art}
+ \ul{Lagrange-/Wirkungsfunktion $L$}: $\boxed{L = T(\ul q,\ul{\dot q}) - V(\ul q)}$ , \\
+ mit kinetische Energie T und potentielle Energie V
+ (jeweils Summe aller Teilenergien der N Glieder).\\
+ $\Rightarrow$ Bewegungsgleichungen (Euler-Lagrange Gln.):\\
+ 
+ \tab $\boxed{\frac{\mathrm{d}}{\mathrm{d}t} \left( \frac{\partial L}{\partial \dot q_i} \right) - \frac{\partial L}{\partial q_i}  = Q_i, \tab i = 1,\dots,N}$\\
+ 
+ mit $Q_i$: verallgemeinerte potentialfreie Gelenkkraft in Richtung $q_i$ (z.B. die Steuerung-, Reibungs-, Dämpfungskraft), $N$: Anzahl der Glieder bzw. Bewegungsachsen.
+\subsection*{Allgemeines Manipulatordynamik-Modell}
+ Anwenden der Lagrange-Methodik liefert $N$ verkoppelte Dgln. 2.Ordnung(in Matrix/Vektor-Schreibweise):\\
+ 
+ $\boxed{M(\ul q)\ul{\ddot q} + \ul N (\ul q, \ul{\dot q}) + \ul G (\ul q) + \ul F(\ul q, \ul{\dot q}) = \ul U}$\\
+ 
+ \begin{tabular}{|c|c|}
+ 	\hline
+ $M(\ul q) \in \mathbb{R}^{N \times N}$ & Manipulator-Trägheitsmatrix \\
+ 	$\ul N (\ul q, \ul{\dot q}) \in \mathbb{R}^N $ & Kreiselkräfte: Zentrifugal, Coriolis\\
+ 	$\ul G (\ul q) \in \mathbb{R}^N$ & Gravitationskräfte \\
+ 	$\ul F(\ul q, \ul{\dot q}) \in \mathbb{R}^N$& Reibungs-, Dämpfungskräfte \\
+ 	$\ul U \in \mathbb{R}^N$& Steuerkräfte \\
+ 	\hline
+ \end{tabular}\\
+
+$\ul F(\ul q, \ul{\dot q})$ sind nicht-konservative Kräfte.
+\newpage
+\subsubsection*{Dynamisches Modell in kartesischen Koordinaten}
+Es gelten folgende Zusammenhänge:\\
+$\ul q = \ul f^{-1}(\ul w)$, \tab $\ul{\dot q} = J^{-1}(\ul q) \ul{\dot w}$, \tab $J=\left[\frac{\partial f_i}{\partial q_j}\right]$ \\ $\ul{\ddot q} = \dot J^{-1}(\ul q) \ul{\dot w} + J^{-1}(\ul q) \ul{\ddot w}$, \tab  $\ul U_{gel} = J^T \ul U_{Welt}$.\\
+Einsetzen in die vorherige Dynamikgleichung:\\
+
+$\boxed{M_w(\ul w)\ul{\ddot w} + \ul N_w (\ul w, \ul{\dot w}) + \ul G_w (\ul w) + \ul F_W(\ul w, \ul{\dot w}) = \ul U_{Welt}}$
+\subsubsection*{Modell-Nutzung}
+$\rightarrow$ \ul{direkte kinetische Modellnutzung}: Für gegebene Anfangwerte $\ul q_0$, $\ul{\dot q_0}$ und bekannten Verlauf der Steuerkräfte $\ul U (t)$ resultierenden Verlauf von $q(t)$ ermitteln.\\
+
+$\rightarrow$ \ul{inverse kinetische Modellnutzung}: Für die in der kinematischen Bahnplanung berechneten Trajektorien $\ul q(t)$, $\ul{\dot q}(t)$, $\ul{\ddot q}(t)$ die erforderlichen Steuerkräfte $\ul U(t)$ ermitteln.
+\subsubsection*{Besonderheiten des Dynamikmodells}
+\begin{itemize}
+	\item Für $||\ul{\dot q}|| \rightarrow 0$ ist $||\ul N (\ul q, \ul{\dot q})|| \approx 0$.
+	\item Unter Wasser oder im Weltraum: $\ul G (\ul q) \approx 0$.
+	\item Bei terrestrischen Einsätzen werden die Gewichtskräfte $\ul G (\ul q)$ durch Vorsteuerung möglichst kompensiert.
+	\item Reibungseffekte sind von entscheidender Bedeutung, leider sind deren Modelle $\ul F(\ul q, \ul{\dot q})$ mit großer Unsicherheit behaftet.
+	\item Wichtige Eigenschaften der Massenmatrix $M$:\\
+	$\rightarrow M(\ul q) > 0$ $ \forall \ul q \in \mathcal{A}$, d.h. pos. definit. $M^{-1}$ exisitiert immer.\\
+	$\rightarrow$ Nebendiagonalelemente ungleich 0 verkoppeln die Achsen zusätzlich.\\
+	$\rightarrow$ Elemente der Matrix stark abhängig von Konfiguration des Manipulators.
+	\item Massenträgheit von Achsantrieben und Getrieben ist in M zu berücksichtigen. (z.B. Skizze: S.85)
+\end{itemize}
+\subsection*{Flexible Roboterarme \footnotesize{(Beispiel: S.85, S.86)}}
+Durch Berücksichtigung der Flexibilität wird das dynamische Modell um die Kopplung mit einem Ersatzsystem (mit Ersatzträgheitsmoment $\tilde \Theta$ und Ersatztorsionsfeder $\tilde K$) ergänzt. Dadurch resultiert das charakteristische Systemverhalten: Doppelpol im Ursprung (Starrkörperbewegung) und konjugiert komplexes Polpaar nahe bzw. auf der Imaginärachse (Armflexibilität). Letzteres Verursacht ausgeprägte Resonanz wegen sehr geringer innerer Materialdämpfung.\\
+
+Effekt typischer Manipulatorstrukturschwingungen: S.87
+%-----------------------------------------------------------------------------------------------------
+\section{Manipulatorregelungskonzepte}
+\ul{Lage- und Bahnregelung:} für Regelung bei umgebungskontaktfreien Effektor.\\
+\ul{Kraft-/Momentenregelung:} für Regelung bei Kontakt mir Umgebung.\\
+\ul{Hybridregelung:} Kombination aus Lage- bzw. Bahn- und Kraft-/Momentenregelung, in bestimmten kartesischen Richtungen aufgeteilt.
+\subsection*{Bahnregelung einer einzelnen Drehachse}
+Reduziertes Modell einer entkoppelten Drehachse $i$:\\ $\Theta_{ii} \ddot { q}_i = M_i + M_z(\ul q, \dot{\ul q})$\tab  $\rightarrow$ Normiert: $\boxed{\ddot q = u + z}$\\
+
+$\Theta_{ii}$: Trägheitsmoment, $M_i$: Moment des Achsantriebs, $M_z$: Störmoment, resultierend aus Verkopplungen mit anderen Achsen. \\
+
+$u$: Steuergröße, $z$: Störgröße.\\
+\ul{Allgemeine Regelungsstruktur:} S.90. Die kinematischen Bahnplanung liefert $q^{soll}$, $\dot q^{soll}$, $\ddot q^{soll}$.
+\subsubsection*{Lageregelung (PTP) durch Zustandsregler}
+Für $S_b=S_v=$ offen, $K_I=0$:\\ $\boxed{u_1 = -K_V \dot q + K_P (q^{soll} - q)}$ \\
+Regelfehler: $\boxed{e = q^{soll} - q}$\\
+
+$\rightarrow$ Einsetzen in normiertes Modell: Fehlerdgl.\\
+$\ddot e + K_V \dot e + K_P e = K_V \dot q^{soll} + \ddot q^{soll} - z$\\
+$\Rightarrow e(s) = \frac{K_V s + s^2}{K_P + K_V s + s^2} q^{soll}(s) - \frac{1}{K_P + K_V s + s^2} z(s)$\\
+
+Mit Grenzwertsatz der Laplace-Transformation:\\
+$e_\infty = e(t\rightarrow \infty) = \lim\limits_{s \rightarrow 0}s\cdot e(s)$. (Skizzen: S.91)
+\begin{itemize}
+	\item $q^{soll}=q_0 \sigma(t)$, $z = z_0 \sigma(t)$:\\
+	$\Rightarrow e_\infty = -\frac{z_0}{K_P}$, bleibender Lagefehler
+	\item $q^{soll}=q_0 t \sigma(t)$, $z = z_0 \sigma(t)$:\\
+	 $\Rightarrow e_\infty = \frac{K_V}{K_P}q_0 -\frac{z_0}{K_P}$, bleibender Schleppfehler
+\end{itemize}
+\subsubsection*{Bahnregelung (CP)}
+Erweiterung der PTP um Vorsteuerung: $S_b=S_v=1$ \\
+$\boxed{u_2 = \ddot q^{soll} + K_V (\dot q^{soll} - \dot q) + K_P (q^{soll} - q)}$\\
+Fehlerdgl.: $\ddot e + K_V \dot e + K_P e = - z$ $\rightarrow$ unabh. von $q^{soll}(t)$, jedoch bleibender Bahnfehler durch Störung $z$.\\ In Fehlerdgl. gilt: $K_V = 2D\omega_0$ , $K_P = \omega_0^2$.
+\subsubsection*{Erweiterte Bahnregelung}
+Erweiterung der CP um $K_I \neq 0$: PID mit Vorsteuerung\\
+$\boxed{u_3 = \ddot q^{soll} + K_V \dot e + K_P e + K_I \int e \mathrm{d}t }$\\
+Fehlerdgl.: $\dddot e + K_V \ddot e + K_P \dot e + K_I e = - \dot z$\\
+$\Rightarrow z=z_0\sigma(t)$ führt zu keinem bleibenden Regelfehler. Dieses Regelungsgesetz ist eine hochwertige Lösung, die bei nicht zu starken Verkopplungen der Achsen auch auf Mehrachsroboter angewendet werden kann.
+\subsubsection*{Bahnregelung mit Störbeobachter \footnotesize{(Skizze: S.92)}}
+Unbekannte Störungen werden durch den Störbeobachter geschätzt und kompensiert. Verwendet man das CP-Regelgesetz, erhält man ebenfalls kein bleibenden Regelfehler, jedoch ohne I-Anteil im Regler.
+$T\dddot q + \ddot q = T \dot u + u + T \dot z \longrightarrow$ Fehlerdgl.:\\ $T \dddot e + (1+K_V T) \ddot e + (K_V + K_P T \dot e + K_P e = - T \dot z$
+\subsection*{Modellgestütztes Mehrachs-Bahnregelverfahren}
+Erweiterung auf Regelung eines Mehrachsroboters.\\
+Kinetisches Manipulatormodell in Gelenkkoordinaten:\\
+$M(\ul q) \ddot{\ul q} + \ul N^*(\ul q, \dot{\ul q}) = \ul U + \ul Z$ , ($\ul N^*(\ul q, \dot{\ul q}) = \ul N + \ul G + \ul F$)\\
+$\ul U$: von Achsantriebe aufgebrachte Momente\\
+$\ul Z$: nichtmodellierte Störmomente
+\subsubsection*{Vektorielles Kaskaden-Regelgesetz \footnotesize{(Skizze: S.94)}}
+Inverse-System-Technik / Computed Torque Control:\\
+$\boxed{\ul U = \ul U_K + \ul U_R = \tilde{\ul N}^*(\ul q, \dot{\ul q}) + \tilde M(\ul q) \ul u_{2,3}}$\\
+$\tilde{\ul N}^*$ und $\tilde M$: Modellgrößen bzw. Rechengrößen.\\ 
+$\ul u_{2,3}$: $\ul u_2$ oder $\ul u_3$ aus vorherigen Abschnitt (vektoriell).\\
+
+Im Idealfall: $\tilde{\ul N}^* = \ul N^*$, $\tilde M = M$ $\Rightarrow N$ entkoppelte $I_2$-Systeme:
+$ \ddot{\ul q} = \ul u_{2,3} + \ul z$ mit $\ul z = M^{-1}(\ul q) \ul Z$\\
+für $\ul u_2 = \ddot {\ul q}^{soll} + K_V (\dot{\ul q}^{soll} - \dot{\ul q}) + K_P ({\ul q}^{soll} - {\ul q})$:\\
+$\Rightarrow \ddot{\ul e} + K_V \dot{\ul e} + K_P{\ul e} = - \ul z$\\
+wobei $K_V$, $K_P > 0 \in \mathbb{R}^{N\times N}$: Diagonalmatrizen.
+\subsection*{Kartesische Bahnregelungsverfahren}
+Für gegebene $\ul w^{soll}$, $\dot{\ul{w}}^{soll}$, $\ddot{\ul{w}}^{soll}$ sollen die Istgrößen $\ul w$, $\dot{\ul{w}}$, $\ddot{\ul{w}}$ geregelt werden.\\
+
+$\rightarrow$ \ul{Bestimmung der kart. Koordinaten:} Skizze S.95\\
+Zur Bestimmung der Istgrößen gibt es 2 Möglichkeiten:
+\begin{itemize}
+\item $\ul q$ messen und $\ul w$ modellbasiert aus VWL berechnen (geringe Kosten, aber abhängig von Winkelsensor- und Modellfehler $\rightarrow \tilde{\ul w}$)
+\item $\ul w$ direkt durch kartesischen Sensor messen (hohe Kosten, aber nur abhängig von Sensorfehler)
+\end{itemize}
+$\rightarrow$ \ul{Inverse-System-Technik im kart. Raum}:
+Analog zu vorherigen Abschnitt, jedoch mit kart. Dynamikmodell:\\
+$M_w(\ul w)\ul{\ddot w} + \ul N_w^* (\ul w, \ul{\dot w}) = \ul U_{w,K} + \ul U_{w,R}$\\
+
+$\rightarrow$ \ul{Jacobi-Regler für kleine Geschwindigkeiten}: S.96\\
+
+\subsection*{Entkopplungsregelung durch Sensorik}
+Berechnung der Koppelmomente ${\ul N}^*$ kann durch Sensorsignale aus Achsmomentsensoren ersetzt werden.\\
+\ul{Beispiel:} Zweiachs-Roboter, Skizze S.97\\
+Achse 1: $\Theta_{A1} \ddot q_1 + d_{A1} \dot q_1 + M_{K1} = u_{A1}$\\
+Achse 2: $\Theta_{A2} (\ddot q_2 + \ddot q_1) + d_{A2} \dot q_2 + M_{K2} = u_{A2}$\\
+$M_{K1}$, $M_{K2}$: Zusatzmomente, sind zu kompensieren.\\
+Sensorsignale $M_{si} \approx M_{Ki} \Rightarrow$ entkoppelndes Regelgesetz:\\
+$u_{A2} = (M_{s2} + \tilde d_{A2} \dot q_2 + \tilde \Theta_{A2}\ddot q_1) + (\tilde \Theta_{A2}\ddot q_2^{soll} + K_P e_2 + K_V \dot e_2)$\\
+
+$\tilde d_{Ai}$: Schätzung des Dämpfungswertes\\
+$\tilde \Theta_{Ai}$: Schätzung der Achsdrehmasse\\
+Für Idealfall $\tilde d_{Ai} = d_{Ai}$, $\tilde \Theta_{Ai} = \Theta_{A2} \Rightarrow$ Fehlerdgln:\\
+$\ddot e_i + K_V \dot e_i + K_P e_i = 0$\\
+
+Die Aufschaltung von $M_{si}$ entspricht einer Störßgrößenaufschaltung von $M_{Ki}(\ul q, \dot{\ul q})$.
+\subsection*{Allgemeine Probleme der Kraft/Momentenregelung}
+Die Lageregelung ist für umgebungskontaktfreien Einsatz konzipiert. Kommt es unerwartet zum Kontakt mit der Umgebung, sind hohe, unkontrollierte Kräfte zu erwarten, die ggf. durch Nachgiebigkeit des Manipulators gemildert werden können.\\
+\ul{Passive Nachgiebigkeit:} durch entsprechende Mechanikelemente realisierbar.\\
+\ul{Aktive Nachgiebigkeit:} durch "weiche" Verstärkung in der Lageregelung realisierbar.\\
+Direkte Kraftregelung erfordert Kraftsensoren, die die Istgröße der Kontaktkraft messen.
+\subsection*{Lageregelung mit passiver / aktiver Nachgiebigkeit (compilance control)}
+Indirekte Kraftregelung. Kräfte entstehen durch Lagefehler zusammen mit einer Hooke'schen Feder:\\
+$\Delta z = c F$, mit $c = \frac{1}{\text{Steifigkeit } k}$\\
+\ul{Annahme:} Umgebung starr, Manipulatorachse nachgiebig mit $c_A = \frac{1}{k_A}$ (Beispiel: Skizze S.99)\\
+Gemäß Signalflussplan (S.100) gilt (mit $R_z = K_P$):\\
+$F_\infty = k_A\frac{K_P/k_A}{1+K_P/k_A}(z^{soll} - z_{Tast}) = k_A^*(z^{soll} - z_{Tast})$\\
+$\Rightarrow k_A^* = 0$ für $K_P=0$ und $k_A^* = k_A$ für $K_P \rightarrow \infty$.\\
+Also erhält man für kleine $K_P$-Werte eine weiche Federwirkung, für große $K_P$-Werte maximal die harte Federwirkung $k_A \rightarrow $ Einstellbare Nachgiebigkeit (aktiv).\\
+Manipulator-Impedanz: $Z(s) =  \frac{\Delta \dot z(s)}{F} = \frac{s}{k_A^*(K_P)}$
+\subsection*{Direkte Kraftregelung}
+Zur Kraftmessung verwendet man meistens Dehnungsmessstreifen (DMS).\\
+Kraftregelung Einachsroboters: Signalflussplan S.101\\
+Kraftregelung  Mehrachsroboters: Signalflussplan S.103\\
+\ul{Manuelle Achsführung:} Für $F^{soll}=0$ und Antastposition $z_{Tast}(t)=z_{Hand}(t)$ ergibt sich, dass der Manipulator der Tastposition (Hand) folgt: $z(t)\approx z_{Tast}(t)$
+\subsection*{Hybride Bahn- und Kraftregelung}
+\ul{Hybride Regelung:} Aufgeteilte Bahn- und Kraftregelung in verschiedenen kartesischen Richtungen.\\
+$\rightarrow$ Zerlegung des Arbeitsraums $\mathcal{A} \in \mathbb{R}^W$ in zwei orthogonale Teilräume $\mathcal{P} \subset \mathcal{A}$ und $\mathcal{Q} \subset \mathcal{A}$, mit $\mathcal{P}\perp \mathcal{Q}$.\\
+$\Rightarrow$ Selektions-/Schaltmatrix $S\in\mathbb{R}^{W\times W}$: Bestimmt, welche Achsen kraftgeregelt werden sollen.\\
+\ul{Beispiel:} 2D-Arbeitsraum $(x,y)$. Implementierung: S.104\\
+$S=\mat{0 & 0 \\ 0 & 1} \rightarrow$ Kraftregelung in $y$-Richtung.\\
+$E-S = \mat{1 & 0 \\ 0 & 0} \rightarrow$ Positionsregelung in $x$-Richtung.
+\subsection*{Impedanzregelung (impedance control)}
+Kontaktkraftverhalten wird mittels einem Impedanzgesetz aktiv implementiert. Eignet sich zum Abfangen von Stößen bei Übergang zum /vom Umgebungskontakt.\\
+$\boxed{\ul{\mathcal{F}} =  K_P (\ul w^{soll} - \ul w) + K_V (\dot{\ul w}^{soll} - \dot{\ul w})}$\\
+$K_P$: aktive Federkonstante (Diagonalmatrix)\\
+$K_V$: aktive Dämpfungskonstante (Diagonalmatrix)\\
+
+Realisierung mittels Kaskadenregelung: Skizze S.106\\
+$\rightarrow$ \ul{virtuelle Impedanz:} $Z(s) = \frac{\Delta \dot w(s)}{F(s)} = \frac{s}{K_P + K_V s}$\\
+Eine Kontaktkraft $\ul F$ erzeugt ein Offset $\Delta \ul w$ bzw. $\Delta \dot{\ul w} \Rightarrow$ aktive, nachgiebig-gedämpte Bewegung ("Feder-Dämpfer-Wirkung")\\
+\ul{Erweiterung:} künstliche Massenwirkung $M$, d.h. zusätzliche Rückführung von $\Delta \ddot{\ul w}$:\\
+$\Rightarrow Z(s) = \frac{s}{K_P + K_V s + M s^2}$\\
+\ul{Sonderfall:} $K_V = M = 0$, $K_P > 0 \Rightarrow$ Regelung mit Nachgiebigkeit $1 / K_P$.\\
+
+\ul{Zusammenfassend:} Kraftregelung $\rightarrow$ Roboter agiert.\\
+Impedanzregelung $\rightarrow$ Roboter reagiert.
+\subsection*{Kraft-/Momentensensoren: S.104, Skizzen S.107}
+\subsection*{Formale Aufgabenbeschreibung einfacher Montageoperationen}
+Für Montageoperationen mit geregelten Manipulator in 6 Freiheitsgraden (6 Arbeitskoordinaten) erfolgt die Aufgabenbeschreibung durch Natürliche Beschränkungen und Künstlichen Beschränkungen , bezogen auf Arbeitskoordinatensystem (Task-Frame)\\
+
+$\rightarrow$ \ul{Natürliche Beschränkungen:} Beispielskizze S.108\\
+$NB_i$ beschreiben, welche Veränderungen in Kontaktsituation $i$ nicht möglich sind (aufgrund der Umgebung).\\
+$NB$ erfassen alle 6 orthogonalen Raumrichtungen des Task-Frames.\\
+
+$\rightarrow$\ul{Künstliche Beschränkungen:}\\
+$KB_i$ sind Bedingungen an Bewegungen und Kräfte, die bei einer Montageoperation auf das Objekt ausgeübt werden sollen.\\
+
+$\rightarrow$\ul{Symbolische Montageaufgabenbeschreibung:} S.108\\
+Beschreibung der Montageaufgabe als Sequenz von Teilaufgaben. Ausgehend von $NB_i$ der Teiloperation $i$ beschreibt man die durch die Manipulatorregelung auszuführende Operation mit $KB_i$ $\Rightarrow$ Operation $i+1$ usw.\\
+$KB_i \rightarrow$ Betriebsart und Sollwerte.\\
+Sensorabfragen $\rightarrow$ Ende Teilaktion $i$, Eintritt in neuen Zustand mit $NB_i$. $\Rightarrow$ Ereignisgesteuerter Ablauf.
+\section{Mobile Roboter \footnotesize{(Dreirad-Fahrzeuge)}}
+Nun werden kinematische Modelle von Roboterfahrzeugen betrachtet. Für die Räder gelte reines Rollen, kein Gleiten. Fahrzeuge besitzen im Gegensatz zu Manipulatoren häufig nicht-holonome Kinematiken.\\
+\ul{Holonomes System:} Lage des Objekts ergibt sich durch Lösen von (nichtlinearen) algebraischen GLn (z.B. VWL). Solche Systeme können sich allgemein lokal in alle relevanten Raumrichtungen bewegen.\\
+\ul{Nicht-holonomes System:} Lage des Objekts ergibt sich durch Lösen von nichtlinearen DGLn. Solche Systeme können sich allgemein lokal nicht in alle relevanten Raumrichtungen bewegen.
+\subsection*{Nicht-holonome Dreirad-Kinematik \footnotesize{(Skizze S.118)}}
+Typisch: Starre Hinterachse (zwei nicht-lenkbare Hinterräder); ein drehbares Vorderrad.\\
+$\rightarrow DZ$: Drehzentrum. Für reines Rollen muss stets ein gemeinsames $DZ$ vorhanden sein (alle Rad-Normalen schneiden sich im DZ).\\
+$\rightarrow v_C$: Geschw. in $x_F$-Richtung (Fahrzeug-Frame $S_F$).\\
+$\rightarrow v_L$, $v_R$: Bahngeschw. der Hinterräder (links/rechts).\\
+$\rightarrow  \gamma$: Orientierung des drehbaren Vorderrads.\\
+$\rightarrow$ Koordinaten des $DZ$ bezügl. $S_F$: ${}_F DZ = \mat{0 \\ L \cot \gamma}$\\
+$\rightarrow$ Kurvenradius ($=\frac{1}{\text{Bahnkrümmung}}$): $r_K = \frac{1}{\kappa} = \frac{L}{\sin \gamma}$\\
+
+$v_L = v \cdot (\cos \gamma - \frac{D}{L}\sin \gamma)$\\
+$v_C = v \cdot \cos \gamma$\\
+$v_R = v \cdot (\cos \gamma + \frac{D}{L}\sin \gamma)$\\
+
+In Weltkoordinaten lautet das kinematische Modell:\\
+$\boxed{\dot x = v_C \cos \phi, \qquad \dot y = v_C \sin \phi, \qquad  \dot \phi = \frac{v}{L}\sin\gamma = \frac{v_C}{L}\tan \gamma}$\\
+
+mit $\ul w = [x, y, \phi]^T$ und $\ul q = [\int v_C \mathrm{d}t, \gamma]^T$.\\
+
+Da die Anzahl der Lagegrößen $\ul w$ nicht mit der Anzahl der Steuergrößen $\ul q$ übereinstimmt, kann bei reinem Rollen der Räder keine Geschw. in Richtung der Hinterachse (senkrecht zu $v_C$) auftreten $\rightarrow$ typische nicht-holonome Zwangsbedingung für Radfahrzeuge.\\
+
+\ul{Technisch interessante Spezialfälle:}
+\begin{itemize}
+	\item $\gamma = 0$ (Geradeausfahrt). Mit $\phi_0=0$:\\
+	$\Rightarrow \dot x = v$, $\qquad \dot y = 0$, $\qquad \dot \phi = 0$.
+	\item $\gamma = \text{ konst.}$, $v=\text{ konst.}$ (Kreisfahrt):\\
+	$\Rightarrow \dot x = v_C \cos \phi$, $\qquad \dot y = v_C \sin \phi$, \\$\dot \phi = \frac{v_C}{L}\tan\gamma = a = \text{ konst.}$\\
+	Mit $\phi_0=x_0=y_0=0$ folgt: $\phi(t) = at$\\
+	$\Rightarrow x^2 + (y-R)^2 = R^2$ mit $R(\gamma) = \frac{v_C}{a} = \frac{L}{\tan \gamma}$
+\end{itemize}
+Fahrzeugtrajektorien lassen sich in einfacher Weise durch Verkettung von Geraden- und Kreissegmenten planen $\rightarrow$ Ansteuern beliebiger Raumlagen $(x,y,\phi)$.
+
+%-----------------------------------------------------------------------------------------------------
+
+\section{Anhang}
+\subsection*{Trigonometrische Funktionen \\ und Additionstheoreme}
+\begin{itemize}
+	\item $\cos (x - \frac{\pi}{2}) = \sin(x)$
+	\item $\sin (x + \frac{\pi}{2}) = \cos(x)$
+	\item $\sin (2x) = 2 \sin (x) \cos (x) $ 
+	\item $\cos (2x) = 2\cos^2 (x) - 1$
+	\item $\tan(x) = \frac{\sin(x)}{\cos(x)}$
+	\item $\sin ( x \pm y ) = \sin (x) \cos (y) \pm \cos (x) \sin (y)$
+	\item $\cos ( x \pm y ) = \cos (x) \cos (y) \mp \sin (x) \sin (y)$
+	\item $\cos (-x) = \cos(x)$
+	\item $\sin(-x) = -\sin(x)$
+\end{itemize}
+-----------------------------------------------------------------------\\
+\ma{\underline{Quelle:}} Skriptum zur Vorlesung Einführung in die Roboterregelung, LSR/ITR, Ausgabe WS 2017/2018, TUM
+\newpage
+%-----------------------------------------------------------------------------------------------------
+\end{multicols}
+\end{document}
+
+
+
+
+
+
+
+
+
